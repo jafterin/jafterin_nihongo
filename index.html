@@ -27,12 +27,17 @@
         .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; font-weight: bold; }
 
         #wordlist-container { max-height: 60vh; overflow-y: auto; text-align: left; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; background: #f8fafc; }
-        .word-item { padding: 16px 10px; border-bottom: 1px solid #cbd5e1; }
+        /* 단어 터치 효과를 위해 cursor와 hover 추가 */
+        .word-item { padding: 16px 10px; border-bottom: 1px solid #cbd5e1; cursor: pointer; transition: background 0.2s; }
+        .word-item:hover { background: #f1f5f9; }
         .word-item:last-child { border-bottom: none; }
         .word-q { font-size: 26px; font-weight: bold; color: #1e293b; margin: 8px 0; line-height: 1.4; letter-spacing: 2px; }
         .word-a { font-size: 16px; color: #ef4444; font-weight: bold; }
-        /* 새로 추가된 뜻 스타일 */
         .word-m { font-size: 15px; color: #3b82f6; margin-top: 4px; font-weight: bold; }
+        
+        /* 숨김 영역 스타일 */
+        .word-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
+        .hint-text { font-size: 13px; color: #94a3b8; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -237,14 +242,30 @@
                 displayWord = correctAnswer;
             }
             
-            // 데이터에 meaning(뜻)이 있으면 파란 글씨로 출력하도록 추가
             const displayMeaning = item.meaning ? `<div class="word-m">뜻: ${item.meaning}</div>` : '';
 
+            // 터치 이벤트를 위해 onclick 함수 추가
+            wordDiv.onclick = function() {
+                const details = this.querySelector('.word-details');
+                const hint = this.querySelector('.hint-text');
+                if (details.style.display === 'none' || details.style.display === '') {
+                    details.style.display = 'block';
+                    hint.style.display = 'none';
+                } else {
+                    details.style.display = 'none';
+                    hint.style.display = 'block';
+                }
+            };
+
+            // 처음엔 정답과 뜻을 감싸는 div를 display:none으로 숨김 처리
             wordDiv.innerHTML = `
                 <div id="category-label" style="margin-bottom: 4px;">${item.label}</div>
                 <div class="word-q">${displayWord}</div>
-                <div class="word-a">정답: ${correctAnswer}</div>
-                ${displayMeaning}
+                <div class="hint-text">👆 터치해서 정답 확인</div>
+                <div class="word-details">
+                    <div class="word-a">정답: ${correctAnswer}</div>
+                    ${displayMeaning}
+                </div>
             `;
             container.appendChild(wordDiv);
         });
