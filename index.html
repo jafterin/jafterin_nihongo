@@ -17,14 +17,17 @@
         .correct { background: #22c55e !important; color: white; }
         .wrong { background: #ef4444 !important; color: white; }
         #quiz-screen, #result-screen, #wordlist-screen { display: none; }
-        #question-text { font-size: 24px; font-weight: bold; margin: 30px 0; color: #1e293b; }
+        #question-text { font-size: 22px; font-weight: bold; margin: 30px 0; color: #1e293b; line-height: 1.5; }
         #category-label { font-size: 12px; color: #64748b; font-weight: bold; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+        
+        /* JLPT 실제 시험 형태의 밑줄 디자인 */
+        u { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; color: #dc2626; }
         
         /* 단어장 목록 스타일 */
         #wordlist-container { max-height: 60vh; overflow-y: auto; text-align: left; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; background: #f8fafc; }
         .word-item { padding: 12px 10px; border-bottom: 1px solid #cbd5e1; }
         .word-item:last-child { border-bottom: none; }
-        .word-q { font-size: 18px; font-weight: bold; color: #1e293b; margin: 4px 0; }
+        .word-q { font-size: 17px; font-weight: bold; color: #1e293b; margin: 4px 0; line-height: 1.4; }
         .word-a { font-size: 16px; color: #ef4444; font-weight: bold; }
     </style>
 </head>
@@ -41,7 +44,6 @@
         <button class="btn" onclick="startQuiz(5)">5. 문법 형식 (文法形式)</button>
         
         <button class="btn btn-primary" onclick="startQuiz(0)" style="margin-top:20px;">전체 랜덤 모의고사</button>
-        <!-- 새로 추가된 단어장 보기 버튼 -->
         <button class="btn btn-success" onclick="showWordList()">📖 전체 단어장 보기</button>
     </div>
 
@@ -70,7 +72,6 @@
     </div>
 </div>
 
-<!-- 넘버링된 JLPT 유형 파일 불러오기 -->
 <script src="type1_kanji_reading.js"></script>
 <script src="type2_kanji_writing.js"></script>
 <script src="type3_context.js"></script>
@@ -78,7 +79,6 @@
 <script src="type5_grammar.js"></script>
 
 <script>
-    // 변경된 변수명들을 하나의 배열로 합치기
     const quizData = [
         ...(typeof type1Data !== 'undefined' ? type1Data : []),
         ...(typeof type2Data !== 'undefined' ? type2Data : []),
@@ -92,7 +92,6 @@
     let score = 0;
     let canClick = true;
 
-    // --- 퀴즈 관련 함수들 ---
     function startQuiz(type) {
         if (type === 0) {
             currentQuestions = [...quizData];
@@ -106,7 +105,10 @@
         }
 
         currentQuestions.sort(() => Math.random() - 0.5);
-        currentQuestions = currentQuestions.slice(0, 10);
+        
+        // 1유형(한자읽기)은 8문제, 나머지는 10문제로 고정
+        let questionLimit = (type === 1) ? 8 : 10;
+        currentQuestions = currentQuestions.slice(0, questionLimit);
         
         currentIndex = 0;
         score = 0;
@@ -181,7 +183,6 @@
         document.getElementById('score-text').innerText = `정답률: ${score} / ${currentQuestions.length}개`;
     }
 
-    // --- 단어장(목록 보기) 기능 추가 ---
     function showWordList() {
         document.getElementById('main-screen').style.display = 'none';
         document.getElementById('wordlist-screen').style.display = 'block';
@@ -194,12 +195,9 @@
             return;
         }
 
-        // 전체 데이터를 순회하며 단어 목록 생성
         quizData.forEach((item) => {
             const wordDiv = document.createElement('div');
             wordDiv.className = 'word-item';
-            
-            // 데이터에 기록된 '원래 정답 번호(answer)'를 바탕으로 정답 텍스트 추출
             const correctAnswer = item.options[item.answer];
 
             wordDiv.innerHTML = `
