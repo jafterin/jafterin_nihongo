@@ -104,9 +104,10 @@
             return;
         }
 
+        // 스마트폰 뒤로가기 버튼을 위한 가짜 방문 기록 생성
+        history.pushState({ screen: 'quiz' }, null, '');
+
         currentQuestions.sort(() => Math.random() - 0.5);
-        
-        // 1유형(한자읽기)은 8문제, 나머지는 10문제로 고정
         let questionLimit = (type === 1) ? 8 : 10;
         currentQuestions = currentQuestions.slice(0, questionLimit);
         
@@ -184,6 +185,9 @@
     }
 
     function showWordList() {
+        // 스마트폰 뒤로가기 버튼을 위한 가짜 방문 기록 생성
+        history.pushState({ screen: 'wordlist' }, null, '');
+
         document.getElementById('main-screen').style.display = 'none';
         document.getElementById('wordlist-screen').style.display = 'block';
 
@@ -208,6 +212,12 @@
             container.appendChild(wordDiv);
         });
     }
+
+    // 스마트폰 물리 뒤로가기(<) 버튼 이벤트 감지
+    window.addEventListener('popstate', function(event) {
+        // 뒤로가기를 누르면 메인 화면으로 돌아가도록 강제 새로고침
+        location.reload();
+    });
 </script>
 
 </body>
