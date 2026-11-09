@@ -20,152 +20,152 @@
     </style>
 </head>
 <body>
+    <div id="app">
+        <!-- 메인 화면 -->
+        <div id="main-screen">
+            <h1>JLPT 실전 모의고사</h1>
+            <button class="btn" onclick="startQuiz(1)">1. 한자 읽기 (漢字読み)</button>
+            <button class="btn" onclick="startQuiz(2)">2. 한자 표기 (漢字表記)</button>
+            <button class="btn" onclick="startQuiz(3)">3. 문맥 규정 (빈칸 어휘)</button>
+            <button class="btn" onclick="startQuiz(4)">4. 유의어 교체 (言い換え)</button>
+            <button class="btn" onclick="startQuiz(5)">5. 문법 형식 (文法形式)</button>
+            <button class="btn btn-primary" onclick="startQuiz(0)" style="margin-top:20px;">전체 랜덤 모의고사</button>
+        </div>
 
-<div id="app">
-    <!-- 메인 화면 -->
-    <div id="main-screen">
-        <h1>어떤 훈련을 할까요?</h1>
-        <button class="btn" onclick="startQuiz(1)">1. 단어 뜻 맞추기</button>
-        <button class="btn" onclick="startQuiz(2)">2. 뜻으로 일본어 찾기</button>
-        <button class="btn" onclick="startQuiz(3)">3. 헷갈리는 한자 구분</button>
-        <button class="btn" onclick="startQuiz(4)">4. 한자 읽는 법(요미가나)</button>
-        <button class="btn" onclick="startQuiz(5)">5. 동사/형용사 변형</button>
-        <button class="btn btn-primary" onclick="startQuiz(0)" style="margin-top:20px;">전체 랜덤 모의고사</button>
-    </div>
-
-    <!-- 퀴즈 화면 -->
-    <div id="quiz-screen">
-        <div id="category-label">카테고리</div>
-        <div id="question-text">질문</div>
-        <div id="options-container"></div>
-        <p id="progress" style="font-size: 14px; color: #666; margin-top: 20px;"></p>
-        
-        <!-- 추가된 처음으로 돌아가기 버튼 -->
-        <button class="btn" onclick="location.reload()" style="margin-top: 20px; background-color: #cbd5e1;">처음으로 돌아가기</button>
-    </div>
-
-    <!-- 결과 화면 -->
-    <div id="result-screen">
-        <h1>학습 완료!</h1>
-        <p id="score-text" style="font-size: 20px; font-weight: bold; margin-bottom: 30px;"></p>
-        <button class="btn btn-primary" onclick="location.reload()">처음으로 돌아가기</button>
-    </div>
-</div>
-
-<!-- 직관적인 이름으로 변경된 파일 불러오기 -->
-<script src="word_meaning.js"></script>
-<script src="meaning_word.js"></script>
-<script src="kanji_diff.js"></script>
-<script src="kanji_reading.js"></script>
-<script src="conjugation.js"></script>
-<script>
-    // 변경된 변수명들을 하나의 배열로 합치기
-    const quizData = [
-        ...(typeof wordMeaningData !== 'undefined' ? wordMeaningData : []),
-        ...(typeof meaningWordData !== 'undefined' ? meaningWordData : []),
-        ...(typeof kanjiDiffData !== 'undefined' ? kanjiDiffData : []),
-        ...(typeof kanjiReadingData !== 'undefined' ? kanjiReadingData : []),
-        ...(typeof conjugationData !== 'undefined' ? conjugationData : [])
-    ];
-
-    let currentQuestions = [];
-    let currentIndex = 0;
-    let score = 0;
-    let canClick = true;
-
-    function startQuiz(type) {
-        // 선택한 유형의 문제만 필터링 (0이면 전체)
-        if (type === 0) {
-            currentQuestions = [...quizData];
-        } else {
-            currentQuestions = quizData.filter(q => q.type === type);
-        }
-        
-        // 문제 섞기 (랜덤 출제)
-        currentQuestions.sort(() => Math.random() - 0.5);
-        
-        // 섞인 문제 중 앞에서부터 10개만 뽑기
-        currentQuestions = currentQuestions.slice(0, 10);
-        
-        currentIndex = 0;
-        score = 0;
-        
-        document.getElementById('main-screen').style.display = 'none';
-        document.getElementById('quiz-screen').style.display = 'block';
-        
-        loadQuestion();
-    }
-
-    function loadQuestion() {
-        canClick = true;
-        const q = currentQuestions[currentIndex];
-        
-        document.getElementById('category-label').innerText = q.label;
-        document.getElementById('question-text').innerHTML = q.q;
-        document.getElementById('progress').innerText = `${currentIndex + 1} / ${currentQuestions.length}`;
-        
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = '';
-        
-        // 1. 보기 텍스트와 정답 여부를 묶은 배열 생성
-        let shuffledOptions = q.options.map((text, index) => {
-            return { text: text, isCorrect: (index === q.answer) };
-        });
-        
-        // 2. 보기 순서 무작위로 섞기
-        shuffledOptions.sort(() => Math.random() - 0.5);
-        
-        // 3. 섞인 보기를 화면에 출력
-        shuffledOptions.forEach((opt) => {
-            const btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.innerHTML = opt.text;
+        <!-- 퀴즈 화면 -->
+        <div id="quiz-screen">
+            <div id="category-label">카테고리</div>
+            <div id="question-text">질문</div>
+            <div id="options-container"></div>
+            <p id="progress" style="font-size: 14px; color: #666; margin-top: 20px;"></p>
             
-            // 이 버튼이 정답인지 아닌지 몰래 꼬리표(dataset) 붙여두기
-            if (opt.isCorrect) {
-                btn.dataset.correct = "true";
+            <!-- 처음으로 돌아가기 버튼 -->
+            <button class="btn" onclick="location.reload()" style="margin-top: 20px; background-color: #cbd5e1;">처음으로 돌아가기</button>
+        </div>
+
+        <!-- 결과 화면 -->
+        <div id="result-screen">
+            <h1>학습 완료!</h1>
+            <p id="score-text" style="font-size: 20px; font-weight: bold; margin-bottom: 30px;"></p>
+            <button class="btn btn-primary" onclick="location.reload()">처음으로 돌아가기</button>
+        </div>
+    </div>
+
+    <!-- 넘버링된 JLPT 유형 파일 불러오기 -->
+    <script src="type1_kanji_reading.js"></script>
+    <script src="type2_kanji_writing.js"></script>
+    <script src="type3_context.js"></script>
+    <script src="type4_synonym.js"></script>
+    <script src="type5_grammar.js"></script>
+
+    <script>
+        // 변경된 변수명들을 하나의 배열로 합치기
+        const quizData = [
+            ...(typeof type1Data !== 'undefined' ? type1Data : []),
+            ...(typeof type2Data !== 'undefined' ? type2Data : []),
+            ...(typeof type3Data !== 'undefined' ? type3Data : []),
+            ...(typeof type4Data !== 'undefined' ? type4Data : []),
+            ...(typeof type5Data !== 'undefined' ? type5Data : [])
+        ];
+
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let canClick = true;
+
+        function startQuiz(type) {
+            // 선택한 유형의 문제만 필터링 (0이면 전체)
+            if (type === 0) {
+                currentQuestions = [...quizData];
+            } else {
+                currentQuestions = quizData.filter(q => q.type === type);
             }
             
-            btn.onclick = () => checkAnswer(btn);
-            optionsContainer.appendChild(btn);
-        });
-    }
+            // 문제 섞기 (랜덤 출제)
+            currentQuestions.sort(() => Math.random() - 0.5);
+            
+            // 섞인 문제 중 앞에서부터 10개만 뽑기
+            currentQuestions = currentQuestions.slice(0, 10);
+            
+            currentIndex = 0;
+            score = 0;
+            
+            document.getElementById('main-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            
+            loadQuestion();
+        }
 
-    function checkAnswer(clickedBtn) {
-        if (!canClick) return;
-        canClick = false;
-        
-        // 클릭한 버튼에 정답 꼬리표가 있는지 확인
-        if (clickedBtn.dataset.correct === "true") {
-            clickedBtn.classList.add('correct');
-            score++;
-        } else {
-            clickedBtn.classList.add('wrong');
-            // 오답을 골랐을 때, 4개 버튼 중 정답 꼬리표가 있는 버튼을 찾아 초록색으로 표시
-            const buttons = document.getElementById('options-container').children;
-            for (let btn of buttons) {
-                if (btn.dataset.correct === "true") {
-                    btn.classList.add('correct');
+        function loadQuestion() {
+            canClick = true;
+            const q = currentQuestions[currentIndex];
+            
+            document.getElementById('category-label').innerText = q.label;
+            document.getElementById('question-text').innerHTML = q.q;
+            document.getElementById('progress').innerText = `${currentIndex + 1} / ${currentQuestions.length}`;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            // 1. 보기 텍스트와 정답 여부를 묶은 배열 생성
+            let shuffledOptions = q.options.map((text, index) => {
+                return { text: text, isCorrect: (index === q.answer) };
+            });
+            
+            // 2. 보기 순서 무작위로 섞기
+            shuffledOptions.sort(() => Math.random() - 0.5);
+            
+            // 3. 섞인 보기를 화면에 출력
+            shuffledOptions.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.innerHTML = opt.text;
+                
+                // 이 버튼이 정답인지 아닌지 몰래 꼬리표(dataset) 붙여두기
+                if (opt.isCorrect) {
+                    btn.dataset.correct = "true";
+                }
+                
+                btn.onclick = () => checkAnswer(btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(clickedBtn) {
+            if (!canClick) return;
+            canClick = false;
+            
+            // 클릭한 버튼에 정답 꼬리표가 있는지 확인
+            if (clickedBtn.dataset.correct === "true") {
+                clickedBtn.classList.add('correct');
+                score++;
+            } else {
+                clickedBtn.classList.add('wrong');
+                // 오답을 골랐을 때, 4개 버튼 중 정답 꼬리표가 있는 버튼을 찾아 초록색으로 표시
+                const buttons = document.getElementById('options-container').children;
+                for (let btn of buttons) {
+                    if (btn.dataset.correct === "true") {
+                        btn.classList.add('correct');
+                    }
                 }
             }
+            
+            setTimeout(() => {
+                currentIndex++;
+                if (currentIndex < currentQuestions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1000);
         }
-        
-        setTimeout(() => {
-            currentIndex++;
-            if (currentIndex < currentQuestions.length) {
-                loadQuestion();
-            } else {
-                showResult();
-            }
-        }, 1000);
-    }
 
-    function showResult() {
-        document.getElementById('quiz-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'block';
-        document.getElementById('score-text').innerText = `정답률: ${score} / ${currentQuestions.length}개`;
-    }
-</script>
+        function showResult() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `정답률: ${score} / ${currentQuestions.length}개`;
+        }
+    </script>
 
 </body>
 </html>
