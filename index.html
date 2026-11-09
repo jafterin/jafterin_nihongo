@@ -23,11 +23,16 @@
         /* JLPT 실제 시험 형태의 밑줄 디자인 */
         u { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; color: #dc2626; }
         
+        /* 단어장 필터 버튼 스타일 */
+        .filter-container { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 15px; }
+        .filter-btn { padding: 6px 12px; border: 1px solid #cbd5e1; background: white; border-radius: 20px; font-size: 13px; color: #475569; cursor: pointer; transition: 0.2s; }
+        .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; font-weight: bold; }
+
         /* 단어장 목록 스타일 */
         #wordlist-container { max-height: 60vh; overflow-y: auto; text-align: left; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; background: #f8fafc; }
-        .word-item { padding: 12px 10px; border-bottom: 1px solid #cbd5e1; }
+        .word-item { padding: 16px 10px; border-bottom: 1px solid #cbd5e1; }
         .word-item:last-child { border-bottom: none; }
-        .word-q { font-size: 17px; font-weight: bold; color: #1e293b; margin: 4px 0; line-height: 1.4; }
+        .word-q { font-size: 26px; font-weight: bold; color: #1e293b; margin: 8px 0; line-height: 1.4; letter-spacing: 2px; }
         .word-a { font-size: 16px; color: #ef4444; font-weight: bold; }
     </style>
 </head>
@@ -44,7 +49,7 @@
         <button class="btn" onclick="startQuiz(5)">5. 문법 형식 (文法形式)</button>
         
         <button class="btn btn-primary" onclick="startQuiz(0)" style="margin-top:20px;">전체 랜덤 모의고사</button>
-        <button class="btn btn-success" onclick="showWordList()">📖 전체 단어장 보기</button>
+        <button class="btn btn-success" onclick="enterWordList()">📖 단어장 보기</button>
     </div>
 
     <!-- 퀴즈 화면 -->
@@ -65,8 +70,17 @@
 
     <!-- 단어장(목록) 화면 -->
     <div id="wordlist-screen">
-        <h1 style="margin-bottom: 10px;">전체 단어장</h1>
-        <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">등록된 모든 문제와 정답을 확인합니다.</p>
+        <h1 style="margin-bottom: 10px;">단어장</h1>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="renderWordList(0)">전체</button>
+            <button class="filter-btn" onclick="renderWordList(1)">1.읽기</button>
+            <button class="filter-btn" onclick="renderWordList(2)">2.표기</button>
+            <button class="filter-btn" onclick="renderWordList(3)">3.문맥</button>
+            <button class="filter-btn" onclick="renderWordList(4)">4.유의어</button>
+            <button class="filter-btn" onclick="renderWordList(5)">5.문법</button>
+        </div>
+
         <div id="wordlist-container"></div>
         <button class="btn" onclick="location.reload()" style="background-color: #cbd5e1;">처음으로 돌아가기</button>
     </div>
@@ -104,7 +118,6 @@
             return;
         }
 
-        // 스마트폰 뒤로가기 버튼을 위한 가짜 방문 기록 생성
         history.pushState({ screen: 'quiz' }, null, '');
 
         currentQuestions.sort(() => Math.random() - 0.5);
@@ -184,38 +197,63 @@
         document.getElementById('score-text').innerText = `정답률: ${score} / ${currentQuestions.length}개`;
     }
 
-    function showWordList() {
-        // 스마트폰 뒤로가기 버튼을 위한 가짜 방문 기록 생성
+    function enterWordList() {
         history.pushState({ screen: 'wordlist' }, null, '');
-
         document.getElementById('main-screen').style.display = 'none';
         document.getElementById('wordlist-screen').style.display = 'block';
+        
+        renderWordList(0);
+    }
+
+    function renderWordList(filterType) {
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach((btn, index) => {
+            if (index === filterType) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
 
         const container = document.getElementById('wordlist-container');
         container.innerHTML = ''; 
 
-        if (quizData.length === 0) {
-            container.innerHTML = '<p style="text-align:center; padding: 20px; color:#64748b;">아직 등록된 단어가 없습니다.</p>';
+        let filteredData = quizData;
+        if (filterType !== 0) {
+            filteredData = quizData.filter(q => q.type === filterType);
+        }
+
+        if (filteredData.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding: 20px; color:#64748b;">이 유형에 아직 등록된 문제가 없습니다.</p>';
             return;
         }
 
-        quizData.forEach((item) => {
+        filteredData.forEach((item) => {
             const wordDiv = document.createElement('div');
             wordDiv.className = 'word-item';
             const correctAnswer = item.options[item.answer];
 
+            // 예문에서 <u> 태그로 감싸진 핵심 단어만 추출하는 로직
+            let displayWord = item.q;
+            const match = item.q.match(/<u>(.*?)<\/u>/);
+            
+            if (match) {
+                displayWord = match[1]; 
+            } else if (item.q.includes("____")) {
+                // 향후 빈칸 문제(type3 등)가 추가될 경우 정답을 표제어로 띄움
+                displayWord = correctAnswer;
+            }
+
             wordDiv.innerHTML = `
                 <div id="category-label" style="margin-bottom: 4px;">${item.label}</div>
-                <div class="word-q">${item.q}</div>
+                <div class="word-q">${displayWord}</div>
                 <div class="word-a">정답: ${correctAnswer}</div>
             `;
             container.appendChild(wordDiv);
         });
     }
 
-    // 스마트폰 물리 뒤로가기(<) 버튼 이벤트 감지
     window.addEventListener('popstate', function(event) {
-        // 뒤로가기를 누르면 메인 화면으로 돌아가도록 강제 새로고침
         location.reload();
     });
 </script>
