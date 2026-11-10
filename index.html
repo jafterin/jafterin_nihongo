@@ -219,43 +219,45 @@
         const container = document.getElementById('wordlist-container');
         container.innerHTML = ''; 
 
-        let filteredData = quizData;
+        // 1. 유형에 맞게 필터링
+        let filteredData = [];
         if (filterType !== 0) {
             filteredData = quizData.filter(q => q.type === filterType);
+        } else {
+            filteredData = [...quizData];
         }
+
+        // 2. 단어장 순서를 랜덤으로 섞기
+        filteredData.sort(() => Math.random() - 0.5);
 
         if (filteredData.length === 0) {
             container.innerHTML = '<p style="text-align:center; padding: 20px; color:#64748b;">이 유형에 아직 등록된 문제가 없습니다.</p>';
             return;
         }
 
+        // 3. 화면에 출력
         filteredData.forEach((item) => {
             const wordDiv = document.createElement('div');
             wordDiv.className = 'word-item';
             const correctAnswer = item.options[item.answer];
 
-            // 1. 문제에서 밑줄(<u>) 친 부분 추출
             let underlined = "";
             const match = item.q.match(/<u>(.*?)<\/u>/);
             if (match) {
                 underlined = match[1]; 
             }
 
-            // 2. 보여질 표제어(한자)와 숨겨질 텍스트(발음) 지정
             let displayWord = item.q;
             let displayAnswerLabel = "발음";
             let displayAnswerText = correctAnswer;
 
             if (item.type === 1) {
-                // 1유형(읽기): 표제어 = 한자(밑줄), 정답 = 발음
                 displayWord = underlined;
                 displayAnswerText = correctAnswer;
             } else if (item.type === 2) {
-                // 2유형(표기): 표제어 = 한자(정답), 정답 = 발음(밑줄)
                 displayWord = correctAnswer;
                 displayAnswerText = underlined;
             } else if (item.q.includes("____")) {
-                // 빈칸 문제(3유형 등) 대비
                 displayWord = correctAnswer;
                 displayAnswerLabel = "정답";
             } else if (underlined) {
