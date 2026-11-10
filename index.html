@@ -27,7 +27,6 @@
         .filter-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; font-weight: bold; }
 
         #wordlist-container { max-height: 60vh; overflow-y: auto; text-align: left; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; background: #f8fafc; }
-        /* 단어 터치 효과를 위해 cursor와 hover 추가 */
         .word-item { padding: 16px 10px; border-bottom: 1px solid #cbd5e1; cursor: pointer; transition: background 0.2s; }
         .word-item:hover { background: #f1f5f9; }
         .word-item:last-child { border-bottom: none; }
@@ -35,7 +34,6 @@
         .word-a { font-size: 16px; color: #ef4444; font-weight: bold; }
         .word-m { font-size: 15px; color: #3b82f6; margin-top: 4px; font-weight: bold; }
         
-        /* 숨김 영역 스타일 */
         .word-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
         .hint-text { font-size: 13px; color: #94a3b8; margin-top: 4px; }
     </style>
@@ -119,9 +117,13 @@
         }
 
         history.pushState({ screen: 'quiz' }, null, '');
-
         currentQuestions.sort(() => Math.random() - 0.5);
-        let questionLimit = (type === 1) ? 8 : 10;
+
+        // 1유형(읽기) 8문제, 2유형(표기) 6문제 지정 로직
+        let questionLimit = 10;
+        if (type === 1) questionLimit = 8;
+        else if (type === 2) questionLimit = 6;
+
         currentQuestions = currentQuestions.slice(0, questionLimit);
         
         currentIndex = 0;
@@ -244,7 +246,6 @@
             
             const displayMeaning = item.meaning ? `<div class="word-m">뜻: ${item.meaning}</div>` : '';
 
-            // 터치 이벤트를 위해 onclick 함수 추가
             wordDiv.onclick = function() {
                 const details = this.querySelector('.word-details');
                 const hint = this.querySelector('.hint-text');
@@ -257,7 +258,6 @@
                 }
             };
 
-            // 처음엔 정답과 뜻을 감싸는 div를 display:none으로 숨김 처리
             wordDiv.innerHTML = `
                 <div id="category-label" style="margin-bottom: 4px;">${item.label}</div>
                 <div class="word-q">${displayWord}</div>
